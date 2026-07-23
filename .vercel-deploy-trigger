@@ -1,0 +1,3 @@
+Force Vercel deployment for login route.
+Triggered: 2026-07-23T09:04:00Z
+Expected commit includes login.html, dashboard.html, data/supabase.js, and updated vercel.json.
