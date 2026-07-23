@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#17212d">
+<title>Masuk · JPC Inspect</title>
+<style>
+:root{--text:#272b30;--muted:#6f7782;--line:#dbe1e7;--blue:#1769e0;--red:#c6423b}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:linear-gradient(135deg,#17212d 0%,#26384c 48%,#eef3f8 48%,#f7f8fa 100%);font:15px/1.5 Arial,system-ui,sans-serif;color:var(--text)}button,input{font:inherit}.card{width:min(430px,100%);background:#fff;border:1px solid var(--line);border-radius:14px;padding:28px;box-shadow:0 24px 70px rgba(10,20,35,.22)}.brand{display:flex;align-items:center;gap:11px;margin-bottom:28px}.mark{width:40px;height:40px;border-radius:9px;background:#f3b83e;color:#17212d;display:grid;place-items:center;font-weight:800}.brand strong,.brand small{display:block}.brand small{color:var(--muted);font-size:11px}h1{font-size:25px;margin:0}p{color:var(--muted);font-size:12px;margin:4px 0 20px}label{display:block;font-size:11px;font-weight:700;margin-bottom:13px}input{display:block;width:100%;height:44px;margin-top:6px;padding:10px 11px;border:1px solid #cbd2da;border-radius:8px}input:focus-visible,button:focus-visible{outline:3px solid rgba(23,105,224,.25);outline-offset:2px}.signup{display:grid;grid-template-columns:1fr 1fr;gap:10px}.signup[hidden]{display:none}.btn{width:100%;min-height:44px;border:0;border-radius:8px;background:var(--blue);color:#fff;font-weight:700;cursor:pointer}.btn:disabled{opacity:.6;cursor:wait}.toggle{display:block;margin:14px auto 0;border:0;background:none;color:var(--blue);font-size:12px;font-weight:700;cursor:pointer}.note{text-align:center;font-size:10px;margin:14px 0 0}.error{min-height:20px;color:var(--red);font-size:11px}.success{color:#21835b}.status{position:fixed;top:16px;right:16px;background:#e7f5ee;color:#21835b;border-radius:7px;padding:6px 9px;font-size:10px;font-weight:700}@media(max-width:560px){body{padding:16px;background:#f3f5f7}.card{padding:22px}.signup{grid-template-columns:1fr}h1{font-size:22px}.status{top:8px;right:8px}}
+</style>
+</head>
+<body>
+<span class="status">Supabase terhubung</span>
+<main class="card">
+<div class="brand"><div class="mark">JPC</div><div><strong>JPC Inspect</strong><small>Sistem Inspeksi Terencana</small></div></div>
+<h1 id="title">Masuk ke aplikasi</h1><p id="description">Gunakan akun PT Jambi Prima Coal untuk melanjutkan.</p>
+<form id="form">
+<div class="signup" id="signupFields" hidden><label>Nama lengkap<input name="fullName" autocomplete="name" placeholder="Nama lengkap"></label><label>Departemen<input name="department" placeholder="HSE / Mining / Plant"></label></div>
+<label>Email<input name="email" type="email" autocomplete="email" required placeholder="nama@jambiprimacoal.co.id"></label>
+<label>Password<input name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="Minimal 8 karakter"></label>
+<div class="error" id="message" role="alert"></div><button class="btn" id="submit" type="submit">Masuk</button>
+</form>
+<button class="toggle" id="toggle" type="button">Belum punya akun? Daftar</button>
+<p class="note">Akun baru mungkin perlu dikonfirmasi melalui email sebelum dapat masuk.</p>
+</main>
+<script type="module">
+import{getCurrentUser,signIn,signUp}from'./data/supabase.js';
+const form=document.querySelector('#form'),submit=document.querySelector('#submit'),message=document.querySelector('#message'),fields=document.querySelector('#signupFields');let signup=false;
+const setMessage=(text='',ok=false)=>{message.textContent=text;message.className=`error ${ok?'success':''}`};
+const setLoading=value=>{submit.disabled=value;submit.textContent=value?'Memproses...':signup?'Daftar':'Masuk'};
+document.querySelector('#toggle').addEventListener('click',()=>{signup=!signup;fields.hidden=!signup;document.querySelector('#title').textContent=signup?'Buat akun':'Masuk ke aplikasi';document.querySelector('#description').textContent=signup?'Daftarkan akun kerja untuk mengakses JPC Inspect.':'Gunakan akun PT Jambi Prima Coal untuk melanjutkan.';submit.textContent=signup?'Daftar':'Masuk';document.querySelector('#toggle').textContent=signup?'Sudah punya akun? Masuk':'Belum punya akun? Daftar';form.password.autocomplete=signup?'new-password':'current-password';setMessage()});
+form.addEventListener('submit',async event=>{event.preventDefault();setLoading(true);setMessage();const data=new FormData(form);try{if(signup){const result=await signUp({email:data.get('email').trim(),password:data.get('password'),fullName:data.get('fullName')?.trim(),department:data.get('department')?.trim()});if(!result.access_token){signup=false;fields.hidden=true;setMessage('Pendaftaran berhasil. Periksa email untuk konfirmasi, lalu masuk.',true);return}}else await signIn(data.get('email').trim(),data.get('password'));location.replace('/dashboard')}catch(error){setMessage(error.message)}finally{setLoading(false)}});
+getCurrentUser().then(user=>{if(user)location.replace('/dashboard')});
+</script>
+</body></html>
