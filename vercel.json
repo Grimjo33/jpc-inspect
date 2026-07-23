@@ -6,7 +6,8 @@
     {"source":"/","destination":"/login","permanent":false}
   ],
   "rewrites":[
-    {"source":"/dashboard","destination":"/dashboard.html"}
+    {"source":"/dashboard","destination":"/dashboard.html"},
+    {"source":"/app","destination":"/index.html"}
   ],
   "headers":[{"source":"/(.*)","headers":[
     {"key":"X-Content-Type-Options","value":"nosniff"},
