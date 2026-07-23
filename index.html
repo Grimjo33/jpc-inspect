@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="JPC Inspect - Sistem inspeksi terencana dan tindak lanjut keselamatan pertambangan" />
+  <meta name="theme-color" content="#17202b" />
+  <title>JPC Inspect</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="brand-mark">JPC</div><div><strong>JPC Inspect</strong><small>Planned Inspection System</small></div></div>
+    <div class="nav-label">OPERASIONAL</div>
+    <nav class="nav" aria-label="Navigasi utama">
+      <button class="active" data-view="dashboard"><span>▦</span>Dashboard</button>
+      <button data-view="schedule"><span>◷</span>Jadwal Inspeksi <i id="scheduleCount">5</i></button>
+      <button data-view="execution"><span>✓</span>Pelaksanaan</button>
+      <button data-view="findings"><span>⚑</span>Temuan & Closing <i id="findingCount">8</i></button>
+      <button data-view="verification"><span>◉</span>Verifikasi <i>3</i></button>
+    </nav>
+    <div class="nav-label">PENGELOLAAN</div>
+    <nav class="nav">
+      <button data-view="checklists"><span>☷</span>Checklist & Standar</button>
+      <button data-view="objects"><span>◇</span>Objek & Risiko</button>
+      <button data-view="reports"><span>▤</span>Laporan & Audit Trail</button>
+      <button data-view="settings"><span>⚙</span>Pengaturan</button>
+    </nav>
+    <div class="legal-note"><b>Basis kepatuhan</b><span>Kepmen ESDM 1827/2018<br>Kepdirjen Minerba 185/2019</span></div>
+    <div class="user-card"><div class="avatar">RW</div><div><strong>Rahmat Wira</strong><small id="sidebarRole">Administrator</small></div></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="page-identity"><button class="icon-button mobile-only" id="menuBtn" aria-label="Buka menu">☰</button><div><h1 id="pageTitle">Dashboard Inspeksi</h1><p id="pageSubtitle">Kendali jadwal, temuan, tindak lanjut, dan closing</p></div></div>
+      <div class="top-actions">
+        <label class="role-switch"><span>Simulasi peran</span><select id="roleSelect" aria-label="Simulasi peran pengguna"><option value="admin">Administrator</option><option value="ktt">KTT / PTL</option><option value="inspector">Inspector / Pengawas</option><option value="pic">PIC Area</option><option value="verifier">Verifier HSE</option><option value="viewer">Viewer / Auditor</option></select></label>
+        <button class="btn secondary desktop-only" id="exportBtn">⇩ Ekspor</button>
+        <button class="btn primary" id="newInspectionBtn">＋ Buat Inspeksi</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <section class="view active" id="dashboard">
+        <div class="compliance-banner"><span class="info-icon">i</span><div><strong>Setiap inspeksi memiliki dua kontrol waktu</strong><p><b>Jadwal pelaksanaan</b> untuk kegiatan inspeksi dan <b>jadwal closing</b> untuk penyelesaian laporan, temuan, verifikasi, serta persetujuan akhir.</p></div></div>
+        <div class="metrics">
+          <article class="metric"><div><span>Inspeksi bulan ini</span><i>◷</i></div><strong>24</strong><small class="positive">18 selesai dilaksanakan</small></article>
+          <article class="metric"><div><span>Menunggu closing</span><i>◎</i></div><strong>6</strong><small class="attention">2 mendekati tenggat</small></article>
+          <article class="metric"><div><span>Temuan terbuka</span><i>⚑</i></div><strong>8</strong><small class="danger">3 melewati target</small></article>
+          <article class="metric"><div><span>Menunggu verifikasi</span><i>✓</i></div><strong>3</strong><small>Perlu tindakan verifier</small></article>
+          <article class="metric"><div><span>Closing tepat waktu</span><i>↗</i></div><strong>82%</strong><small class="positive">Naik 6% bulan ini</small></article>
+        </div>
+
+        <div class="dashboard-grid">
+          <section class="card span-2">
+            <div class="card-head"><div><h2>Inspeksi dan jadwal closing</h2><p>Prioritas berdasarkan risiko dan sisa waktu</p></div><button class="text-button" data-jump="schedule">Lihat semua</button></div>
+            <div class="table-scroll"><table class="data-table"><thead><tr><th>Inspeksi</th><th>Pelaksanaan</th><th>Target closing</th><th>Progress</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="dashboardInspectionRows"></tbody></table></div>
+          </section>
+          <section class="card closing-card">
+            <div class="card-head"><div><h2>Alur closing</h2><p>Siapa melakukan apa</p></div></div>
+            <div class="workflow-mini">
+              <div><b>1</b><span><strong>PIC melaksanakan perbaikan</strong><small>Unggah bukti dan ajukan closing temuan.</small></span></div>
+              <div><b>2</b><span><strong>Verifier memeriksa efektivitas</strong><small>Terima, tolak, atau minta bukti tambahan.</small></span></div>
+              <div><b>3</b><span><strong>Inspector menutup laporan</strong><small>Pastikan semua butir dan temuan selesai.</small></span></div>
+              <div><b>4</b><span><strong>KTT/PTL final approval</strong><small>Menutup inspeksi atau membuka kembali.</small></span></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="dashboard-grid lower-grid">
+          <section class="card"><div class="card-head"><div><h2>Tindak lanjut prioritas</h2><p>Risiko tinggi, ekstrem, atau terlambat</p></div><button class="text-button" data-jump="findings">Kelola</button></div><div id="priorityFindings" class="priority-list"></div></section>
+          <section class="card"><div class="card-head"><div><h2>Kinerja closing</h2><p>Juli 2026</p></div></div><div class="closing-performance"><div class="donut"><div><strong>82%</strong><span>Tepat waktu</span></div></div><ul><li><span><i class="dot green"></i>Tepat waktu</span><b>18</b></li><li><span><i class="dot orange"></i>Terlambat</span><b>4</b></li><li><span><i class="dot gray"></i>Belum jatuh tempo</span><b>6</b></li></ul></div></section>
+          <section class="card"><div class="card-head"><div><h2>Kepatuhan dokumen</h2><p>Kelengkapan bukti wajib</p></div></div><div class="document-checks"><div><span>Checklist terisi</span><b>100%</b></div><progress value="100" max="100"></progress><div><span>Foto / bukti temuan</span><b>92%</b></div><progress value="92" max="100"></progress><div><span>Tanda tangan pihak terkait</span><b>87%</b></div><progress value="87" max="100"></progress><div><span>Verifikasi efektivitas</span><b>79%</b></div><progress value="79" max="100"></progress></div></section>
+        </div>
+      </section>
+
+      <section class="view" id="schedule">
+        <div class="section-toolbar"><div class="filter-row"><input id="scheduleSearch" type="search" placeholder="Cari nomor, objek, atau area..."/><select><option>Semua status</option><option>Direncanakan</option><option>Berlangsung</option><option>Menunggu Closing</option><option>Closed</option></select><select><option>Semua risiko</option><option>Ekstrem</option><option>Tinggi</option><option>Sedang</option><option>Rendah</option></select></div><button class="btn primary" id="newInspectionBtn2">＋ Buat Inspeksi</button></div>
+        <div class="schedule-summary"><div><span>Pelaksanaan terlambat</span><b class="danger">1</b></div><div><span>Closing minggu ini</span><b>4</b></div><div><span>Closing terlambat</span><b class="danger">2</b></div><div><span>Closed bulan ini</span><b class="positive">18</b></div></div>
+        <section class="card"><div class="table-scroll"><table class="data-table wide"><thead><tr><th>Nomor / objek</th><th>Area & risiko</th><th>Inspector</th><th>Pelaksanaan</th><th>Target laporan</th><th>Target closing</th><th>Status</th><th></th></tr></thead><tbody id="scheduleRows"></tbody></table></div></section>
+      </section>
+
+      <section class="view" id="execution">
+        <div class="stage-header"><div><h2>Pelaksanaan Inspeksi Digital</h2><p>Checklist, temuan, bukti lapangan, dan tanda tangan.</p></div><span class="badge blue">3 berlangsung</span></div>
+        <div class="execution-layout">
+          <section class="card checklist-panel"><div class="card-head"><div><h2>INS-2026-072 · Workshop alat berat</h2><p>Plant · Inspector: Andi Saputra</p></div><span class="badge blue">Berlangsung</span></div><div class="inspection-progress"><div><span>Progress checklist</span><b>8 dari 12 butir</b></div><progress value="67" max="100"></progress></div><div id="checklistItems" class="checklist-items"></div></section>
+          <aside class="card context-panel"><div class="card-head"><h2>Kontrol pelaksanaan</h2></div><div class="context-body"><dl><dt>Mulai</dt><dd>24 Jul 2026 · 08:15</dd><dt>Target laporan</dt><dd>24 Jul 2026 · 17:00</dd><dt>Target closing</dt><dd>31 Jul 2026</dd><dt>Metode</dt><dd>Inspeksi bersama</dd></dl><hr><h3>Tindakan saat bahaya kritis</h3><p>Petugas dapat menghentikan sementara pekerjaan, mencatat tindakan segera, dan mengeskalasi kepada KTT/PTL.</p><button class="btn danger-btn full" id="criticalBtn">! Catat bahaya kritis</button><button class="btn primary full" id="submitReportBtn">Kirim laporan untuk review</button></div></aside>
+        </div>
+      </section>
+
+      <section class="view" id="findings">
+        <div class="stage-header"><div><h2>Temuan dan Tindak Lanjut</h2><p>Kelola penyebab dasar, pengendalian, PIC, tenggat, bukti, dan verifikasi.</p></div><button class="btn secondary" id="newFindingBtn">＋ Tambah Temuan</button></div>
+        <div class="kanban" id="findingBoard"></div>
+      </section>
+
+      <section class="view" id="verification">
+        <div class="stage-header"><div><h2>Antrean Verifikasi Closing</h2><p>Closing temuan harus diverifikasi oleh pihak yang tidak mengerjakan tindakan perbaikan.</p></div><span class="badge orange">3 menunggu</span></div>
+        <section class="card"><div id="verificationQueue" class="verification-list"></div></section>
+      </section>
+
+      <section class="view" id="checklists">
+        <div class="stage-header"><div><h2>Checklist dan Standar</h2><p>Template terkendali dengan versi, pengesah, dan dasar regulasi.</p></div><button class="btn primary">＋ Template Baru</button></div>
+        <div class="feature-grid">
+          <article class="feature-card"><span>☷</span><h3>Checklist Jalan Tambang</h3><p>18 butir · Rev. 04 · berlaku 1 Jul 2026</p><small>Disahkan KTT</small></article><article class="feature-card"><span>⚙</span><h3>Checklist Workshop</h3><p>22 butir · Rev. 02 · berlaku 15 Jun 2026</p><small>Disahkan KTT</small></article><article class="feature-card"><span>⚠</span><h3>Checklist Bahan Peledak</h3><p>26 butir · Rev. 05 · berlaku 20 Mei 2026</p><small>Disahkan KTT</small></article><article class="feature-card"><span>▤</span><h3>Checklist CHPP</h3><p>20 butir · Rev. 03 · berlaku 10 Jun 2026</p><small>Disahkan PTL</small></article>
+        </div>
+      </section>
+
+      <section class="view" id="objects">
+        <div class="stage-header"><div><h2>Register Objek dan Risiko</h2><p>Frekuensi inspeksi dihitung dari profil risiko dan riwayat kinerja.</p></div><button class="btn primary">＋ Tambah Objek</button></div>
+        <section class="card"><div class="table-scroll"><table class="data-table"><thead><tr><th>Objek</th><th>Area</th><th>Bahaya dominan</th><th>Risiko</th><th>Frekuensi minimum</th><th>Inspeksi terakhir</th></tr></thead><tbody><tr><td><b>Jalan angkut Pit Timur</b></td><td>Mining</td><td>Interaksi kendaraan, geometri jalan</td><td><span class="badge red">Ekstrem</span></td><td>Setiap gilir kerja + mingguan</td><td>21 Jul 2026</td></tr><tr><td><b>Workshop alat berat</b></td><td>Plant</td><td>Energi tersimpan, lifting</td><td><span class="badge orange">Tinggi</span></td><td>Mingguan</td><td>17 Jul 2026</td></tr><tr><td><b>Stockpile & crusher</b></td><td>CHPP</td><td>Conveyor, debu, kebisingan</td><td><span class="badge orange">Tinggi</span></td><td>Mingguan</td><td>18 Jul 2026</td></tr></tbody></table></div></section>
+      </section>
+
+      <section class="view" id="reports">
+        <div class="stage-header"><div><h2>Laporan dan Audit Trail</h2><p>Bukti pelaksanaan, perubahan status, persetujuan, dan penyebarluasan.</p></div><button class="btn secondary">⇩ Ekspor PDF</button></div>
+        <div class="feature-grid"><article class="feature-card"><span>▤</span><h3>Laporan inspeksi</h3><p>Identitas, checklist, temuan, foto, rekomendasi, tanda tangan, dan status closing.</p></article><article class="feature-card"><span>↗</span><h3>Analitik kepatuhan</h3><p>Realisasi jadwal, aging temuan, ketepatan closing, temuan berulang, dan tren area.</p></article><article class="feature-card"><span>◷</span><h3>Audit trail</h3><p>Rekam perubahan, pengguna, waktu, alasan, bukti lama/baru, serta reopen history.</p></article><article class="feature-card"><span>◎</span><h3>Lesson learned</h3><p>Ringkasan hasil inspeksi dan bukti penyebarluasan kepada pekerja terkait.</p></article></div>
+      </section>
+
+      <section class="view" id="settings">
+        <div class="stage-header"><div><h2>Pengaturan Sistem</h2><p>Peran, matriks kewenangan, SLA closing, notifikasi, dan integrasi.</p></div></div>
+        <div class="settings-grid">
+          <section class="card"><div class="card-head"><h2>Matriks kewenangan closing</h2></div><div class="permission-table"><div class="permission-head"><b>Aktivitas</b><b>PIC</b><b>Inspector</b><b>Verifier</b><b>KTT/PTL</b></div><div><span>Melaksanakan tindak lanjut</span><i>✓</i><i>—</i><i>—</i><i>—</i></div><div><span>Mengajukan closing temuan</span><i>✓</i><i>✓</i><i>—</i><i>—</i></div><div><span>Verifikasi bukti & efektivitas</span><i>—</i><i>Opsional</i><i>✓</i><i>✓</i></div><div><span>Closing temuan</span><i>—</i><i>—</i><i>✓</i><i>✓</i></div><div><span>Closing laporan inspeksi</span><i>—</i><i>✓</i><i>✓</i><i>✓</i></div><div><span>Final closing / reopen</span><i>—</i><i>—</i><i>—</i><i>✓</i></div></div></section>
+          <section class="card"><div class="card-head"><h2>SLA berdasarkan risiko</h2></div><div class="sla-list"><div><span class="risk-marker extreme">Ekstrem</span><b>Tindakan segera · target 1 hari</b></div><div><span class="risk-marker high">Tinggi</span><b>Target 3–7 hari</b></div><div><span class="risk-marker medium">Sedang</span><b>Target 14 hari</b></div><div><span class="risk-marker low">Rendah</span><b>Target 30 hari</b></div><small>Nilai dapat dikonfigurasi perusahaan berdasarkan penilaian risiko dan standar internal.</small></div></section>
+          <section class="card"><div class="card-head"><h2>Integrasi Supabase</h2></div><div class="integration-box"><span class="integration-status">Mode demo aktif</span><p>Website saat ini menggunakan data demo di browser. Isi environment variable Vercel untuk mengaktifkan koneksi Supabase.</p><code>SUPABASE_URL</code><code>SUPABASE_ANON_KEY</code><a href="api/health" target="_blank">Cek endpoint kesehatan →</a></div></section>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="modal" id="inspectionModal" role="dialog" aria-modal="true" aria-labelledby="inspectionModalTitle">
+  <div class="dialog large"><div class="dialog-head"><div><h2 id="inspectionModalTitle">Buat Rencana Inspeksi</h2><p>Tentukan jadwal pelaksanaan, laporan, tindak lanjut, dan closing.</p></div><button class="icon-button close-modal" aria-label="Tutup">×</button></div>
+    <form id="inspectionForm"><div class="dialog-body"><div class="form-grid">
+      <div class="field full"><label>Objek / judul inspeksi *</label><input name="title" required placeholder="Contoh: Inspeksi jalan angkut Pit Timur" /></div>
+      <div class="field"><label>Area *</label><select name="area" required><option value="">Pilih area</option><option>Mining</option><option>Plant</option><option>CHPP</option><option>Blasting</option><option>Port</option></select></div>
+      <div class="field"><label>Risiko objek *</label><select name="risk" required><option>Ekstrem</option><option>Tinggi</option><option>Sedang</option><option>Rendah</option></select></div>
+      <div class="field"><label>Inspector *</label><input name="inspector" required placeholder="Nama Pengawas Operasional / petugas" /></div>
+      <div class="field"><label>Metode</label><select name="method"><option>Inspeksi rutin</option><option>Inspeksi silang</option><option>Inspeksi bersama</option><option>Inspeksi khusus</option></select></div>
+      <div class="field"><label>Jadwal pelaksanaan *</label><input name="inspectionDate" type="date" value="2026-07-23" required /></div>
+      <div class="field"><label>Target laporan *</label><input name="reportDue" type="date" value="2026-07-24" required /></div>
+      <div class="field"><label>Target closing inspeksi *</label><input name="closingDue" type="date" value="2026-07-31" required /><small>Batas seluruh temuan terverifikasi dan laporan ditutup.</small></div>
+      <div class="field"><label>Final approver *</label><select name="approver"><option>KTT</option><option>PTL</option><option>Delegasi KTT/PTL</option></select></div>
+      <div class="field full"><label>Ruang lingkup, acuan, dan kebutuhan alat</label><textarea name="scope" placeholder="Checklist, SOP, standar, alat ukur/uji, bahaya utama..."></textarea></div>
+    </div><div class="timeline-hint"><strong>Tahapan otomatis</strong><span>Direncanakan → Ditugaskan → Berlangsung → Laporan dikirim → Review → Tindak lanjut → Verifikasi → Final closing</span></div></div>
+    <div class="dialog-foot"><button class="btn secondary close-modal" type="button">Batal</button><button class="btn primary" type="submit">Simpan Rencana</button></div></form>
+  </div>
+</div>
+
+<div class="drawer-backdrop" id="findingDrawer"><aside class="drawer"><div class="drawer-head"><div><span class="eyebrow">TEMUAN <span id="drawerFindingId">F-018</span></span><h2 id="drawerFindingTitle">Bundwall tangki BBM rusak</h2></div><button class="icon-button" id="closeDrawer">×</button></div><div class="drawer-body">
+  <div class="status-strip"><span class="badge red" id="drawerRisk">Ekstrem</span><span class="badge orange" id="drawerStatus">Tindak lanjut</span></div>
+  <section><h3>Detail temuan</h3><dl class="detail-list"><dt>Area</dt><dd id="drawerArea">Fuel Station</dd><dt>PIC</dt><dd id="drawerPic">Plant Manager</dd><dt>Target closing</dt><dd id="drawerDue">20 Jul 2026</dd><dt>Penyebab dasar</dt><dd>Inspeksi kondisi sipil belum masuk jadwal pemeliharaan berkala.</dd></dl></section>
+  <section><h3>Rencana tindak lanjut</h3><div class="action-plan"><b>Perbaiki struktur bundwall dan lakukan uji integritas</b><p>Kontrol: rekayasa teknis · bukti: foto sebelum/sesudah dan hasil uji.</p><div class="progress-line"><span style="width:70%"></span></div><small>Progress 70%</small></div></section>
+  <section><h3>Bukti closing</h3><div class="upload-box"><span>⬆</span><b>Unggah foto atau dokumen</b><small>JPG, PNG, PDF · maksimum 10 MB</small><input type="file" aria-label="Unggah bukti" /></div><textarea id="closureNote" placeholder="Jelaskan tindakan yang telah dilakukan dan hasil pemeriksaan..."></textarea></section>
+  <section><h3>Riwayat</h3><ol class="history"><li><b>Temuan dibuat</b><span>18 Jul 2026 · Inspector</span></li><li><b>PIC menerima penugasan</b><span>18 Jul 2026 · Plant Manager</span></li><li><b>Progress diperbarui menjadi 70%</b><span>21 Jul 2026 · Plant Manager</span></li></ol></section>
+</div><div class="drawer-foot" id="drawerActions"></div></aside></div>
+
+<div class="toast" id="toast" role="status"></div>
+<script src="app.js" type="module"></script>
+</body>
+</html>
