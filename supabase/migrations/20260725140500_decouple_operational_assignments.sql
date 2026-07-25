@@ -1,0 +1,11 @@
+-- Operational assignments are not exclusive account roles.
+-- Every active profile can be Inspector or PIC; Verifier must still be authorized and different from PIC.
+
+-- Deployed in Supabase migration: decouple_operational_assignments (20260725070054).
+-- Updated RPCs:
+-- create_assigned_inspection: any active user may inspect; non-admin users may create self-assignments.
+-- assign_finding_participants: any active user may be PIC; assigned inspector/admin/KTT assigns participants.
+-- submit_inspection_checklist: authorization follows the assigned inspector, not the primary role.
+-- save_finding_immediate_action: authorization follows the assigned inspector.
+-- final_close_finding: assigned inspector, final approver, Admin, or KTT/PTL may close after verification.
+-- Independence remains mandatory: PIC and Verifier must be different users.
