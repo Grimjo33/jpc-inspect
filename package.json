@@ -1,8 +1,1 @@
-{
-  "name":"jpc-inspect",
-  "version":"1.0.0",
-  "private":true,
-  "description":"Planned inspection and finding closure system for mining safety",
-  "scripts":{"dev":"vercel dev","deploy":"vercel --prod"},
-  "engines":{"node":">=20"}
-}
+{"name":"jpc-inspect","version":"1.1.0","private":true,"description":"Planned inspection and finding closure system for mining safety","type":"module","scripts":{"dev":"vercel dev","deploy":"vercel --prod"},"dependencies":{"pdfkit":"^0.16.0"},"engines":{"node":">=20"}}
